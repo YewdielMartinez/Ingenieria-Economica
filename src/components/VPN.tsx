@@ -9,9 +9,9 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
+import AnimatedMuiButton from './AnimatedMuiButton.tsx'; // Importa el botón animado
 
 export const VPN: React.FC = () => {
   const [initialInvestment, setInitialInvestment] = useState<number | string>('');
@@ -69,8 +69,18 @@ export const VPN: React.FC = () => {
   };
 
   return (
+    <Box
+    sx={{
+      
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow:'10px'
+    }}
+      >
     <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" fontFamily={'Bebas Neue, sans-serif'} fontSize={'60px'} gutterBottom>
         Valor Presente Neto (VPN)
       </Typography>
 
@@ -81,6 +91,7 @@ export const VPN: React.FC = () => {
         onChange={(e) => setInitialInvestment(e.target.value)}
         fullWidth
         margin="normal"
+        color='secondary'
       />
 
       <TextField
@@ -124,13 +135,9 @@ export const VPN: React.FC = () => {
       ))}
 
       <Box mt={2} display="flex" justifyContent="space-between">
-        <Button
-          variant="outlined"
-          startIcon={<AddCircleOutlineIcon />}
-          onClick={addCashFlow}
-        >
-          Agregar Flujo de Efectivo
-        </Button>
+        {/* Usa el botón animado aquí */}
+        <AnimatedMuiButton onClick={addCashFlow} />
+
         <Button variant="contained" color="primary" onClick={calculateVPN}>
           Calcular VPN
         </Button>
@@ -141,7 +148,7 @@ export const VPN: React.FC = () => {
 
       {vpnResult !== null && (
         <Box mt={3}>
-          <Typography variant="h6" color="primary">
+          <Typography variant="h6"fontFamily={'Oswald'} color="primary">
             Valor Presente Neto: ${vpnResult.toFixed(2)}
           </Typography>
         </Box>
@@ -153,5 +160,6 @@ export const VPN: React.FC = () => {
         </Button>
       </Box>
     </Container>
+  </Box>
   );
 };

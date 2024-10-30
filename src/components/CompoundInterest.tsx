@@ -27,7 +27,7 @@ export const CompoundInterest: React.FC = () => {
     const t = Number(time);
     const n = Number(compoundsPerYear);
 
-    // Fórmula del Interés Compuesto
+
     const total = P * Math.pow(1 + r / n, n * t);
     setCompoundInterest(total - P); // Interés compuesto = Monto total - Capital inicial
     setTotalAmount(total); // Total = Capital inicial + Interés
@@ -110,7 +110,6 @@ export const CompoundInterest: React.FC = () => {
         </Box>
       )}
 
-      {/* Botón para regresar al Home */}
       <Box mt={3}>
         <Button variant="contained" color="info" onClick={() => navigate('/')}>
           Regresar al Inicio
