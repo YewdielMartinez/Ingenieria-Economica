@@ -1,18 +1,37 @@
-// src/components/PaybackPeriod.tsx
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './PaybackPeriod.module.css';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  Box,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 
 export const PaybackPeriod: React.FC = () => {
   const [initialInvestment, setInitialInvestment] = useState<number | string>('');
-  const [cashFlows, setCashFlows] = useState<number[]>([0]);
+  const [cashFlows, setCashFlows] = useState<{ value: number; unit: number }[]>([
+    { value: 0, unit: 1 },
+  ]);
   const [paybackPeriod, setPaybackPeriod] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   // Manejar el cambio en los flujos de efectivo
   const handleCashFlowChange = (index: number, value: string) => {
     const newCashFlows = [...cashFlows];
-    newCashFlows[index] = Number(value);
+    newCashFlows[index].value = Number(value);
+    setCashFlows(newCashFlows);
+  };
+
+  // Manejar el cambio en la unidad del flujo de efectivo
+  const handleUnitChange = (index: number, unit: number) => {
+    const newCashFlows = [...cashFlows];
+    newCashFlows[index].unit = unit;
     setCashFlows(newCashFlows);
   };
 
@@ -23,7 +42,7 @@ export const PaybackPeriod: React.FC = () => {
     let years = 0;
 
     for (let i = 0; i < cashFlows.length; i++) {
-      cumulativeCashFlow += cashFlows[i];
+      cumulativeCashFlow += cashFlows[i].value * cashFlows[i].unit;
       if (cumulativeCashFlow >= initial) {
         years = i + 1; // Años (i comienza en 0)
         break;
@@ -36,58 +55,93 @@ export const PaybackPeriod: React.FC = () => {
   // Limpiar los resultados
   const clearInputs = () => {
     setInitialInvestment('');
-    setCashFlows([0]); // Reiniciar a un solo flujo de efectivo
+    setCashFlows([{ value: 0, unit: 1 }]);
     setPaybackPeriod(null);
   };
 
   // Agregar un flujo de efectivo
   const addCashFlow = () => {
-    setCashFlows([...cashFlows, 0]);
+    setCashFlows([...cashFlows, { value: 0, unit: 1 }]);
+  };
+
+  // Función para regresar al menú principal
+  const goToMainMenu = () => {
+    navigate('/');
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Período de Recuperación de la Inversión</h2>
-      <input
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Período de Recuperación de la Inversión
+      </Typography>
+      
+      <TextField
+        label="Inversión Inicial"
         type="number"
-        placeholder="Inversión Inicial"
         value={initialInvestment}
         onChange={(e) => setInitialInvestment(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
 
       {cashFlows.map((cashFlow, index) => (
-        <input
-          key={index}
-          type="number"
-          placeholder={`Flujo de Efectivo Año ${index + 1}`}
-          value={cashFlow}
-          onChange={(e) => handleCashFlowChange(index, e.target.value)}
-          className={styles.input}
-        />
+        <Box display="flex" alignItems="center" key={index} sx={{ mt: 1 }}>
+          <TextField
+            label={`Flujo de Efectivo Año ${index + 1}`}
+            type="number"
+            value={cashFlow.value}
+            onChange={(e) => handleCashFlowChange(index, e.target.value)}
+            fullWidth
+          />
+          <Select
+            value={cashFlow.unit}
+            onChange={(e) => handleUnitChange(index, Number(e.target.value))}
+            sx={{ ml: 1 }}
+          >
+            <MenuItem value={1}>Unidades</MenuItem>
+            <MenuItem value={1_000}>Miles</MenuItem>
+            <MenuItem value={1_000_000}>Millones</MenuItem>
+          </Select>
+          <IconButton
+            aria-label="delete"
+            color="error"
+            onClick={() => setCashFlows(cashFlows.filter((_, i) => i !== index))}
+            sx={{ ml: 1 }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
       ))}
-      <button onClick={addCashFlow} className={styles.button}>
-        Agregar Flujo de Efectivo
-      </button>
-      <button onClick={calculatePaybackPeriod} className={styles.button}>
-        Calcular Período
-      </button>
-      <button onClick={clearInputs} className={styles.clearButton}>
-        Limpiar
-      </button>
+
+      <Box mt={2} display="flex" justifyContent="space-between">
+        <Button
+          variant="outlined"
+          startIcon={<AddCircleOutlineIcon />}
+          onClick={addCashFlow}
+        >
+          Agregar Flujo de Efectivo
+        </Button>
+        <Button variant="contained" color="primary" onClick={calculatePaybackPeriod}>
+          Calcular Período
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={clearInputs}>
+          Limpiar
+        </Button>
+      </Box>
 
       {paybackPeriod !== null && (
-        <div className={styles.result}>
-          <p>Período de Recuperación: {paybackPeriod} años</p>
-        </div>
+        <Box mt={3}>
+          <Typography variant="h6" color="primary">
+            Período de Recuperación: {paybackPeriod} años
+          </Typography>
+        </Box>
       )}
 
-      {/* Botón para regresar al Home */}
-      <Link to="/" className={styles.homeButton}>
-        Regresar al Inicio
-      </Link>
-    </div>
+      <Box mt={3}>
+        <Button variant="contained" color="info" onClick={goToMainMenu}>
+          Regresar al Menú Principal
+        </Button>
+      </Box>
+    </Container>
   );
 };
-
-

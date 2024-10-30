@@ -1,14 +1,21 @@
-
 import React, { useState } from 'react';
-import styles from './SimpleInterest.module.css';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 export const VAE: React.FC = () => {
   const [vpn, setVpn] = useState<number | string>('');
   const [rate, setRate] = useState<number | string>('');
   const [periods, setPeriods] = useState<number | string>('');
   const [vae, setVae] = useState<number | null>(null);
+  const navigate = useNavigate();
 
-  // Calcular el Valor Anual Equivalente
+  // Calcular el Valor Anual Equivalente (VAE)
   const calculateVAE = () => {
     const VPN = Number(vpn);
     const i = Number(rate) / 100;
@@ -27,37 +34,64 @@ export const VAE: React.FC = () => {
     setVae(null);
   };
 
+  // Función para regresar al menú principal
+  const goToMainMenu = () => {
+    navigate('/');
+  };
+
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Valor Anual Equivalente</h2>
-      <input
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Valor Anual Equivalente (VAE)
+      </Typography>
+
+      <TextField
+        label="Valor Presente Neto (VPN)"
         type="number"
-        placeholder="Valor Presente Neto (VPN)"
         value={vpn}
         onChange={(e) => setVpn(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <input
+      <TextField
+        label="Tasa de Interés (%)"
         type="number"
-        placeholder="Tasa de interés (%)"
         value={rate}
         onChange={(e) => setRate(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <input
+      <TextField
+        label="Número de Períodos (años)"
         type="number"
-        placeholder="Número de períodos (años)"
         value={periods}
         onChange={(e) => setPeriods(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <button onClick={calculateVAE} className={styles.button}>
-        Calcular
-      </button>
-      <button onClick={clearInputs} className={styles.clearButton}>
-        Limpiar
-      </button>
-      {vae !== null && <p className={styles.result}>VAE: ${vae.toFixed(2)}</p>}
-    </div>
+
+      <Box mt={2} display="flex" justifyContent="space-between">
+        <Button variant="contained" color="primary" onClick={calculateVAE}>
+          Calcular VAE
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={clearInputs}>
+          Limpiar
+        </Button>
+      </Box>
+
+      {vae !== null && (
+        <Box mt={3}>
+          <Typography variant="h6" color="primary">
+            Valor Anual Equivalente: ${vae.toFixed(2)}
+          </Typography>
+        </Box>
+      )}
+
+      <Box mt={3}>
+        <Button variant="contained" color="info" onClick={goToMainMenu}>
+          Regresar al Menú Principal
+        </Button>
+      </Box>
+    </Container>
   );
 };

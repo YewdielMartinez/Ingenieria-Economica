@@ -1,58 +1,97 @@
 import React, { useState } from 'react';
-import styles from './SimpleInterest.module.css';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
- export const SimpleInterest: React.FC = () => {
+export const SimpleInterest: React.FC = () => {
   const [principal, setPrincipal] = useState<number | string>('');
   const [rate, setRate] = useState<number | string>('');
   const [time, setTime] = useState<number | string>('');
   const [interest, setInterest] = useState<number | null>(null);
+  const [totalAmount, setTotalAmount] = useState<number | null>(null);
+  const navigate = useNavigate();
 
-    //Calcular el interes Simple
+  // Calcular el interés simple
   const calculateInterest = () => {
-    const result = (Number(principal) * Number(rate) * Number(time)) / 100;
+    const P = Number(principal);
+    const r = Number(rate);
+    const t = Number(time);
+    const result = (P * r * t) / 100;
     setInterest(result);
+    setTotalAmount(P + result); // Monto total = Capital + Interés
   };
 
-  //Limpiar los resultados
+  // Limpiar los resultados
   const clearInputs = () => {
     setPrincipal('');
     setRate('');
     setTime('');
     setInterest(null);
+    setTotalAmount(null);
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Interés Simple</h2>
-      <input
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Interés Simple
+      </Typography>
+      <TextField
+        label="Capital Inicial"
         type="number"
-        placeholder="Capital Inicial"
         value={principal}
         onChange={(e) => setPrincipal(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <input
+      <TextField
+        label="Tasa de interés (%)"
         type="number"
-        placeholder="Tasa de interés (%)"
         value={rate}
         onChange={(e) => setRate(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <input
+      <TextField
+        label="Tiempo (años)"
         type="number"
-        placeholder="Tiempo (años)"
         value={time}
         onChange={(e) => setTime(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <button onClick={calculateInterest} className={styles.button}>
-        Calcular
-      </button>
-      <button onClick={clearInputs} className={styles.clearButton}>
-        Limpiar
-      </button>
-      {interest !== null && <p className={styles.result}>Interés: ${interest}</p>}
-    </div>
+      <Box mt={2} display="flex" justifyContent="space-between">
+        <Button variant="contained" color="primary" onClick={calculateInterest}>
+          Calcular
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={clearInputs}>
+          Limpiar
+        </Button>
+      </Box>
+
+      {interest !== null && totalAmount !== null && (
+        <Box mt={3}>
+          <Typography variant="h6" color="primary">
+            Interés: ${interest.toFixed(2)}
+          </Typography>
+          <Typography variant="h6" color="primary">
+            Monto Total (Capital + Interés): ${totalAmount.toFixed(2)}
+          </Typography>
+        </Box>
+      )}
+
+      {/* Botón para regresar al Home */}
+      <Box mt={3}>
+        <Button variant="contained" color="info" onClick={() => navigate('/')}>
+          Regresar al Inicio
+        </Button>
+      </Box>
+    </Container>
   );
 };
 
+export default SimpleInterest;

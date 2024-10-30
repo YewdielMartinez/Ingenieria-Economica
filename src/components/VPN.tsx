@@ -1,97 +1,157 @@
-
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './SimpleInterest.module.css';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  Box,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
 
 export const VPN: React.FC = () => {
   const [initialInvestment, setInitialInvestment] = useState<number | string>('');
   const [discountRate, setDiscountRate] = useState<number | string>('');
-  const [cashFlows, setCashFlows] = useState<number[]>([0]);
-  const [VPN, setVPN] = useState<number | null>(null);
+  const [cashFlows, setCashFlows] = useState<{ value: number; unit: number }[]>([
+    { value: 0, unit: 1 },
+  ]);
+  const [vpnResult, setVpnResult] = useState<number | null>(null);
+  const navigate = useNavigate();
 
-  // Manejar el cambio en los flujos de efectivo
-  const handleCashFlowChange = (index: number, value: string) => {
-    const newCashFlows = [...cashFlows];
-    newCashFlows[index] = Number(value);
-    setCashFlows(newCashFlows);
-  };
-
-  // Calcular el Valor Presente Neto
+  // Función para calcular el Valor Presente Neto (VPN)
   const calculateVPN = () => {
     const initial = Number(initialInvestment);
     const rate = Number(discountRate) / 100;
-    let totalVPN = -initial; 
+    let totalVPN = -initial;
 
     cashFlows.forEach((cashFlow, index) => {
-      totalVPN += cashFlow / Math.pow(1 + rate, index + 1); 
+      const adjustedCashFlow = cashFlow.value * cashFlow.unit;
+      totalVPN += adjustedCashFlow / Math.pow(1 + rate, index + 1);
     });
 
-    setVPN(totalVPN);
+    setVpnResult(totalVPN);
   };
 
   // Limpiar los resultados
   const clearInputs = () => {
     setInitialInvestment('');
     setDiscountRate('');
-    setCashFlows([0]); 
-    setVPN(null);
+    setCashFlows([{ value: 0, unit: 1 }]);
+    setVpnResult(null);
   };
 
- 
+  // Agregar un flujo de efectivo adicional
   const addCashFlow = () => {
-    setCashFlows([...cashFlows, 0]);
+    setCashFlows([...cashFlows, { value: 0, unit: 1 }]);
+  };
+
+  // Manejar el cambio en el valor del flujo de efectivo
+  const handleCashFlowChange = (index: number, value: string) => {
+    const newCashFlows = [...cashFlows];
+    newCashFlows[index].value = Number(value);
+    setCashFlows(newCashFlows);
+  };
+
+  // Manejar el cambio en la unidad del flujo de efectivo
+  const handleUnitChange = (index: number, unit: number) => {
+    const newCashFlows = [...cashFlows];
+    newCashFlows[index].unit = unit;
+    setCashFlows(newCashFlows);
+  };
+
+  // Función para regresar al menú principal
+  const goToMainMenu = () => {
+    navigate('/');
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Valor Presente Neto (VPN)</h2>
-      <input
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Valor Presente Neto (VPN)
+      </Typography>
+
+      <TextField
+        label="Inversión Inicial"
         type="number"
-        placeholder="Inversión Inicial"
         value={initialInvestment}
         onChange={(e) => setInitialInvestment(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <input
+
+      <TextField
+        label="Tasa de Descuento (%)"
         type="number"
-        placeholder="Tasa de Descuento (%)"
         value={discountRate}
         onChange={(e) => setDiscountRate(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
 
       {cashFlows.map((cashFlow, index) => (
-        <input
-          key={index}
-          type="number"
-          placeholder={`Flujo de Efectivo Año ${index + 1}`}
-          value={cashFlow}
-          onChange={(e) => handleCashFlowChange(index, e.target.value)}
-          className={styles.input}
-        />
+        <Box display="flex" alignItems="center" key={index} sx={{ mt: 1 }}>
+          <TextField
+            label={`Flujo de Efectivo Año ${index + 1}`}
+            type="number"
+            value={cashFlow.value}
+            onChange={(e) => handleCashFlowChange(index, e.target.value)}
+            fullWidth
+          />
+          <Select
+            value={cashFlow.unit}
+            onChange={(e) => handleUnitChange(index, Number(e.target.value))}
+            sx={{ ml: 1 }}
+          >
+            <MenuItem value={1}>Unidades</MenuItem>
+            <MenuItem value={1_000}>Miles</MenuItem>
+            <MenuItem value={1_000_000}>Millones</MenuItem>
+          </Select>
+          <IconButton
+            aria-label="delete"
+            color="error"
+            onClick={() =>
+              setCashFlows(cashFlows.filter((_, i) => i !== index))
+            }
+            sx={{ ml: 1 }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
       ))}
-      <button onClick={addCashFlow} className={styles.button}>
-        Agregar Flujo de Efectivo
-      </button>
-      <button onClick={calculateVPN} className={styles.button}>
-        Calcular VPN
-      </button>
-      <button onClick={clearInputs} className={styles.clearButton}>
-        Limpiar
-      </button>
 
-      {VPN !== null && (
-        <div className={styles.result}>
-          <p>Valor Presente Neto: ${VPN.toFixed(2)}</p>
-        </div>
+      <Box mt={2} display="flex" justifyContent="space-between">
+        <Button
+          variant="outlined"
+          startIcon={<AddCircleOutlineIcon />}
+          onClick={addCashFlow}
+        >
+          Agregar Flujo de Efectivo
+        </Button>
+        <Button variant="contained" color="primary" onClick={calculateVPN}>
+          Calcular VPN
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={clearInputs}>
+          Limpiar
+        </Button>
+      </Box>
+
+      {vpnResult !== null && (
+        <Box mt={3}>
+          <Typography variant="h6" color="primary">
+            Valor Presente Neto: ${vpnResult.toFixed(2)}
+          </Typography>
+        </Box>
       )}
 
-      <Link to="/" className={styles.homeButton}>
-        Regresar al Inicio
-      </Link>
-    </div>
+      <Box mt={3}>
+        <Button variant="contained" color="info" onClick={goToMainMenu}>
+          Regresar al Menú Principal
+        </Button>
+      </Box>
+    </Container>
   );
 };
-
-

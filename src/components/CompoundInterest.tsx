@@ -1,20 +1,28 @@
-
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './SimpleInterest.module.css';
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Select,
+  MenuItem,
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 export const CompoundInterest: React.FC = () => {
-  const [Inicial, setInicial] = useState<number | string>('');
+  const [initial, setInitial] = useState<number | string>('');
   const [rate, setRate] = useState<number | string>('');
   const [time, setTime] = useState<number | string>('');
   const [compoundsPerYear, setCompoundsPerYear] = useState<number | string>('');
+  const [unit, setUnit] = useState<number>(1); // Nuevo estado para la unidad
   const [compoundInterest, setCompoundInterest] = useState<number | null>(null);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   // Calcular el Interés Compuesto
   const calculateCompoundInterest = () => {
-    const P = Number(Inicial);
+    const P = Number(initial) * unit; // Multiplica el capital inicial por la unidad seleccionada
     const r = Number(rate) / 100;
     const t = Number(time);
     const n = Number(compoundsPerYear);
@@ -27,63 +35,88 @@ export const CompoundInterest: React.FC = () => {
 
   // Limpiar los resultados
   const clearInputs = () => {
-    setInicial('');
+    setInitial('');
     setRate('');
     setTime('');
     setCompoundsPerYear('');
     setCompoundInterest(null);
     setTotalAmount(null);
+    setUnit(1); // Resetear unidad a "Unidades"
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Interés Compuesto</h2>
-      <input
+    <Container sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>
+        Interés Compuesto
+      </Typography>
+      <TextField
+        label="Capital Inicial"
         type="number"
-        placeholder="Capital Inicial"
-        value={Inicial}
-        onChange={(e) => setInicial(e.target.value)}
-        className={styles.input}
+        value={initial}
+        onChange={(e) => setInitial(e.target.value)}
+        fullWidth
+        margin="normal"
       />
-      <input
+      <TextField
+        label="Tasa de interés (%)"
         type="number"
-        placeholder="Tasa de interés (%)"
         value={rate}
         onChange={(e) => setRate(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <input
+      <TextField
+        label="Tiempo (años)"
         type="number"
-        placeholder="Tiempo (años)"
         value={time}
         onChange={(e) => setTime(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <input
+      <TextField
+        label="Compuestos por año"
         type="number"
-        placeholder="Compuestos por año"
         value={compoundsPerYear}
         onChange={(e) => setCompoundsPerYear(e.target.value)}
-        className={styles.input}
+        fullWidth
+        margin="normal"
       />
-      <button onClick={calculateCompoundInterest} className={styles.button}>
-        Calcular
-      </button>
-      <button onClick={clearInputs} className={styles.clearButton}>
-        Limpiar
-      </button>
+      <Select
+        value={unit}
+        onChange={(e) => setUnit(Number(e.target.value))}
+        displayEmpty
+        sx={{ mt: 2, mb: 2, minWidth: 120 }}
+      >
+        <MenuItem value={1}>Unidades</MenuItem>
+        <MenuItem value={1_000}>Miles</MenuItem>
+        <MenuItem value={1_000_000}>Millones</MenuItem>
+      </Select>
+      <Box mt={2} display="flex" justifyContent="space-between">
+        <Button variant="contained" color="primary" onClick={calculateCompoundInterest}>
+          Calcular
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={clearInputs}>
+          Limpiar
+        </Button>
+      </Box>
+
       {compoundInterest !== null && totalAmount !== null && (
-        <div className={styles.result}>
-          <p>Interés Compuesto: ${compoundInterest.toFixed(2)}</p>
-          <p>Monto Total (Capital + Interés): ${totalAmount.toFixed(2)}</p>
-        </div>
+        <Box mt={3}>
+          <Typography variant="h6" color="primary">
+            </Typography>
+          <Typography variant="h6" color="primary">
+            Monto Total (Capital + Interés): ${totalAmount.toFixed(2)}
+          </Typography>
+        </Box>
       )}
-      
+
       {/* Botón para regresar al Home */}
-      <Link to="/" className={styles.homeButton}>
-        Regresar al Inicio
-      </Link>
-    </div>
+      <Box mt={3}>
+        <Button variant="contained" color="info" onClick={() => navigate('/')}>
+          Regresar al Inicio
+        </Button>
+      </Box>
+    </Container>
   );
 };
 
