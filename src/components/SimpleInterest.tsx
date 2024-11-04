@@ -2,11 +2,19 @@ import React, { useState } from 'react';
 import {
   Container,
   Typography,
-  TextField,
-  Button,
   Box,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Switch,
+  CssBaseline,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import BackButton from './BackButton';
+import ResetButton from './ResetButton'; // Nuevo botón de reinicio
+import CalculateButton from './CalculateButton'; // Nuevo botón de calcular
+import './inputStyle.css'; // Importa el archivo CSS con los estilos de input
 
 export const SimpleInterest: React.FC = () => {
   const [principal, setPrincipal] = useState<number | string>('');
@@ -14,19 +22,33 @@ export const SimpleInterest: React.FC = () => {
   const [time, setTime] = useState<number | string>('');
   const [interest, setInterest] = useState<number | null>(null);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
-  const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
 
-  // Calcular el interés simple
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light',
+      primary: { main: '#a93226' },
+      background: { default: darkMode ? '#000000' : '#E0E0E0' },
+    },
+    typography: {
+      fontFamily: 'Lato, sans-serif',
+      h1: { fontFamily: 'Bebas Neue, sans-serif' },
+      h2: { fontFamily: 'Bebas Neue, sans-serif' },
+      h6: { fontFamily: 'Oswald,italic' },
+    },
+  });
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+
   const calculateInterest = () => {
     const P = Number(principal);
     const r = Number(rate);
     const t = Number(time);
     const result = (P * r * t) / 100;
     setInterest(result);
-    setTotalAmount(P + result); // Monto total = Capital + Interés
+    setTotalAmount(P + result);
   };
 
-  // Limpiar los resultados
   const clearInputs = () => {
     setPrincipal('');
     setRate('');
@@ -36,61 +58,75 @@ export const SimpleInterest: React.FC = () => {
   };
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Interés Simple
-      </Typography>
-      <TextField
-        label="Capital Inicial"
-        type="number"
-        value={principal}
-        onChange={(e) => setPrincipal(e.target.value)}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Tasa de interés (%)"
-        type="number"
-        value={rate}
-        onChange={(e) => setRate(e.target.value)}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Tiempo (años)"
-        type="number"
-        value={time}
-        onChange={(e) => setTime(e.target.value)}
-        fullWidth
-        margin="normal"
-      />
-      <Box mt={2} display="flex" justifyContent="space-between">
-        <Button variant="contained" color="primary" onClick={calculateInterest}>
-          Calcular
-        </Button>
-        <Button variant="outlined" color="secondary" onClick={clearInputs}>
-          Limpiar
-        </Button>
-      </Box>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppBar position="static" color="primary">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }} fontSize={40}>
+            Interés Simple
+          </Typography>
+          <IconButton color="inherit" onClick={toggleDarkMode}>
+            {darkMode ? <Brightness7 /> : <Brightness4 />}
+          </IconButton>
+          <Switch checked={darkMode} onChange={toggleDarkMode} />
+        </Toolbar>
+      </AppBar>
 
-      {interest !== null && totalAmount !== null && (
-        <Box mt={3}>
-          <Typography variant="h6" color="primary">
-            Interés: ${interest.toFixed(2)}
-          </Typography>
-          <Typography variant="h6" color="primary">
-            Monto Total (Capital + Interés): ${totalAmount.toFixed(2)}
-          </Typography>
+      <Container sx={{ mt: 4 }}>
+
+        {/* Grupo de Inputs */}
+        <div className="input-group">
+          <input
+            className="input"
+            type="number"
+            value={principal}
+            onChange={(e) => setPrincipal(e.target.value)}
+            required
+          />
+          <label className="user-label">Capital Inicial</label>
+        </div>
+        <div className="input-group">
+          <input
+            className="input"
+            type="number"
+            value={rate}
+            onChange={(e) => setRate(e.target.value)}
+            required
+          />
+          <label className="user-label">Tasa de interés (%)</label>
+        </div>
+        <div className="input-group">
+          <input
+            className="input"
+            type="number"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            required
+          />
+          <label className="user-label">Tiempo (años)</label>
+        </div>
+
+        <Box mt={2} display="flex" justifyContent="space-between">
+          <CalculateButton onClick={calculateInterest} /> {/* Nuevo botón de calcular */}
+          <ResetButton onClick={clearInputs} /> {/* Nuevo botón de reinicio */}
         </Box>
-      )}
 
-      {/* Botón para regresar al Home */}
-      <Box mt={3}>
-        <Button variant="contained" color="info" onClick={() => navigate('/')}>
-          Regresar al Inicio
-        </Button>
-      </Box>
-    </Container>
+        {interest !== null && totalAmount !== null && (
+          <Box mt={3}>
+            <Typography variant="h6" color="primary">
+              Interés: ${interest.toFixed(2)}
+            </Typography>
+            <Typography variant="h6" color="primary">
+              Monto Total (Capital + Interés): ${totalAmount.toFixed(2)}
+            </Typography>
+          </Box>
+        )}
+
+        <Box mt={3}>
+          <BackButton />
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 };
 

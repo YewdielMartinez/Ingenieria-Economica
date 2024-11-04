@@ -1,0 +1,73 @@
+.input-group {
+    position: relative;
+    padding-top: 1rem;
+}
+
+.input {
+    border: solid 1.5px #9e9e9e;
+    border-radius: 1rem;
+    background: none;
+    padding: 1rem;
+    font-size: 1rem;
+    color: #212121;
+    /* Color de texto en el modo claro */
+    transition: border 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    margin: 10px;
+    font-family: Poppins;
+}
+
+
+/* Estilos de los labels */
+
+.user-label {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    right: auto;
+    color: #616161;
+    /* Color general en modo claro */
+    pointer-events: none;
+    transform: translateY(1.5rem);
+    opacity: 0.5;
+    /* Opacidad inicial para que el label sea translúcido */
+    transition: 150ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms ease-in-out;
+    font-family: Poppins;
+}
+
+
+/* Ajuste de color de los labels en modo oscuro */
+
+.dark-mode .user-label {
+    color: #e8e8e8;
+}
+
+.input:focus,
+.input:valid {
+    outline: none;
+    border: 1.5px solid #c0392b;
+}
+
+
+/* Label activo con opacidad total y transformado */
+
+.input:focus~.user-label,
+.input:valid~.user-label {
+    transform: translateY(-50%) scale(0.8);
+    padding: 0 0.2em;
+    color: #c0392b;
+    opacity: 1;
+    /* El label se vuelve completamente visible al activarse */
+    background-color: transparent;
+    /* Eliminar el fondo del label */
+}
+
+
+/* Fondo y color del label en modo oscuro */
+
+.dark-mode .input:focus~.user-label,
+.dark-mode .input:valid~.user-label {
+    background-color: transparent;
+    /* Eliminar el fondo del label */
+    color: #2196f3;
+}
