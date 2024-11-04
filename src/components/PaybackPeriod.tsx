@@ -9,6 +9,11 @@ import {
   Switch,
   Button,
   CssBaseline,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -18,7 +23,6 @@ import BackButton from './BackButton';
 import ResetButton from './ResetButton';
 import CalculateButton from './CalculateButton';
 import './inputStyle.css'; // Estilos de input
-
 
 export const PaybackPeriod: React.FC = () => {
   const [initialInvestment, setInitialInvestment] = useState<number | string>('');
@@ -93,38 +97,38 @@ export const PaybackPeriod: React.FC = () => {
       </AppBar>
 
       <Container sx={{ mt: 4 }}>
-        <div className="input-group">
-          <input
-            className="input"
-            type="number"
-            value={initialInvestment}
-            onChange={(e) => setInitialInvestment(e.target.value)}
-            required
-          />
-          <label className="user-label">Inversión Inicial</label>
-        </div>
+        <TextField
+          className="input"
+          label="Inversión Inicial"
+          type="number"
+          value={initialInvestment}
+          onChange={(e) => setInitialInvestment(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
 
         {cashFlows.map((cashFlow, index) => (
           <Box display="flex" alignItems="center" key={index} sx={{ mt: 1 }}>
-            <div className="input-group">
-              <input
-                className="input"
-                type="number"
-                value={cashFlow.value}
-                onChange={(e) => handleCashFlowChange(index, e.target.value)}
-                required
-              />
-              <label className="user-label">Flujo de Efectivo Año {index + 1}</label>
-            </div>
-            <select
-              value={cashFlow.unit}
-              onChange={(e) => handleUnitChange(index, Number(e.target.value))}
-              className="unit-select"
-            >
-              <option value={1}>Unidades</option>
-              <option value={1_000}>Miles</option>
-              <option value={1_000_000}>Millones</option>
-            </select>
+            <TextField
+              className="input"
+              label={`Flujo de Efectivo Año ${index + 1}`}
+              type="number"
+              value={cashFlow.value}
+              onChange={(e) => handleCashFlowChange(index, e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+            <FormControl fullWidth sx={{ ml: 1 }}>
+              <InputLabel>Unidad</InputLabel>
+              <Select
+                value={cashFlow.unit}
+                onChange={(e) => handleUnitChange(index, Number(e.target.value))}
+              >
+                <MenuItem value={1}>Unidades</MenuItem>
+                <MenuItem value={1_000}>Miles</MenuItem>
+                <MenuItem value={1_000_000}>Millones</MenuItem>
+              </Select>
+            </FormControl>
             <IconButton
               aria-label="delete"
               color="error"
@@ -144,7 +148,7 @@ export const PaybackPeriod: React.FC = () => {
             Agregar Flujo de Efectivo
           </Button>
           <CalculateButton onClick={calculatePaybackPeriod} />
-          <ResetButton onClick={clearInputs} /> 
+          <ResetButton onClick={clearInputs} />
         </Box>
 
         {paybackPeriod !== null && (
@@ -155,7 +159,7 @@ export const PaybackPeriod: React.FC = () => {
           </Box>
         )}
 
-<Box mt={3}>
+        <Box mt={3}>
           <BackButton />
         </Box>
       </Container>
