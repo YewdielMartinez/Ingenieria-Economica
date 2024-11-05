@@ -8,7 +8,7 @@ interface AnimatedMuiButtonProps {
 }
 
 // Botón personalizado usando styled de Material UI
-const AnimatedButton = styled(Button)(({ theme }) => ({
+const AnimatedButton = styled(Button)(() => ({
   position: 'relative',
   width: '200px',
   height: '40px',

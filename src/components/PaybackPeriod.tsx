@@ -29,7 +29,15 @@ export const PaybackPeriod: React.FC = () => {
   const [cashFlows, setCashFlows] = useState<{ value: number; unit: number }[]>([
     { value: 0, unit: 1 },
   ]);
-  const [paybackPeriod, setPaybackPeriod] = useState<number | null>(null);
+  const [paybackPeriod, setPaybackPeriod] = useState<{
+    years: number;
+    months: number;
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+  } | null>(null);
+  const [decimalPaybackPeriod, setDecimalPaybackPeriod] = useState<number | null>(null); // Para el valor decimal
   const [darkMode, setDarkMode] = useState(false);
 
   const theme = createTheme({
@@ -62,23 +70,56 @@ export const PaybackPeriod: React.FC = () => {
   const calculatePaybackPeriod = () => {
     const initial = Number(initialInvestment);
     let cumulativeCashFlow = 0;
-    let years = 0;
+    let exactYears = 0;
 
     for (let i = 0; i < cashFlows.length; i++) {
       cumulativeCashFlow += cashFlows[i].value * cashFlows[i].unit;
       if (cumulativeCashFlow >= initial) {
-        years = i + 1;
-        break;
+        exactYears = i; // Años completos
+        const excess = cumulativeCashFlow - initial;
+        const yearlyFlow = cashFlows[i].value * cashFlows[i].unit;
+
+        // Fracción del año
+        const yearFraction = (yearlyFlow - excess) / yearlyFlow;
+
+        // Convertimos la fracción de año en unidades de tiempo
+        const totalSeconds = yearFraction * 365.25 * 24 * 60 * 60;
+        const years = Math.floor(totalSeconds / (365.25 * 24 * 60 * 60));
+        const remainingSecondsAfterYears = totalSeconds % (365.25 * 24 * 60 * 60);
+        const months = Math.floor(remainingSecondsAfterYears / (30 * 24 * 60 * 60));
+        const remainingSecondsAfterMonths = remainingSecondsAfterYears % (30 * 24 * 60 * 60);
+        const days = Math.floor(remainingSecondsAfterMonths / (24 * 60 * 60));
+        const remainingSecondsAfterDays = remainingSecondsAfterMonths % (24 * 60 * 60);
+        const hours = Math.floor(remainingSecondsAfterDays / (60 * 60));
+        const remainingSecondsAfterHours = remainingSecondsAfterDays % (60 * 60);
+        const minutes = Math.floor(remainingSecondsAfterHours / 60);
+        const seconds = remainingSecondsAfterHours % 60;
+
+        // Calcula el período de recuperación en decimal
+        const decimalYears = exactYears + yearFraction;
+
+        setPaybackPeriod({
+          years: exactYears + years,
+          months,
+          days,
+          hours,
+          minutes,
+          seconds,
+        });
+        setDecimalPaybackPeriod(decimalYears); // Guarda el valor decimal
+        return;
       }
     }
 
-    setPaybackPeriod(cumulativeCashFlow >= initial ? years : null);
+    setPaybackPeriod(null); // No se recupera la inversión
+    setDecimalPaybackPeriod(null); // Limpia el valor decimal si no se recupera la inversión
   };
 
   const clearInputs = () => {
     setInitialInvestment('');
     setCashFlows([{ value: 0, unit: 1 }]);
     setPaybackPeriod(null);
+    setDecimalPaybackPeriod(null);
   };
 
   return (
@@ -151,11 +192,16 @@ export const PaybackPeriod: React.FC = () => {
           <ResetButton onClick={clearInputs} />
         </Box>
 
-        {paybackPeriod !== null && (
+        {paybackPeriod && (
           <Box mt={3}>
             <Typography variant="h6" color="primary">
-              Período de Recuperación: {paybackPeriod} años
+              Período de Recuperación: {paybackPeriod.years} años, {paybackPeriod.months} meses, {paybackPeriod.days} días, {paybackPeriod.hours} horas, {paybackPeriod.minutes} minutos, {paybackPeriod.seconds} segundos
             </Typography>
+            {decimalPaybackPeriod !== null && (
+              <Typography variant="h6" color="primary">
+                Período de Recuperación (en años decimales): {decimalPaybackPeriod.toFixed(2)} años
+              </Typography>
+            )}
           </Box>
         )}
 
