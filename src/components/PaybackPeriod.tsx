@@ -199,7 +199,7 @@ export const PaybackPeriod: React.FC = () => {
             </Typography>
             {decimalPaybackPeriod !== null && (
               <Typography variant="h6" color="primary">
-                Período de Recuperación (en años decimales): {decimalPaybackPeriod.toFixed(2)} años
+                Período de Recuperación (en años decimales): {decimalPaybackPeriod.toFixed(2)} 
               </Typography>
             )}
           </Box>
